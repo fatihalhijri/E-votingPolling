@@ -1,0 +1,65 @@
+# nixpacks.toml — Konfigurasi Build untuk Railway
+#
+# File ini memberitahu Railway cara:
+# 1. Setup PHP & ekstensi yang dibutuhkan Laravel
+# 2. Install dependencies via Composer
+# 3. Build (cache config/route/view untuk performa)
+# 4. Jalankan aplikasi
+#
+# Dokumentasi nixpacks: https://nixpacks.com/docs/config
+
+# =====================================================================
+# FASE 1: SETUP — install PHP 8.2 + ekstensi yang dibutuhkan Laravel
+# (Railway pakai Nix package manager, nama package berbeda dari apt)
+# =====================================================================
+[phases.setup]
+nixPkgs = [
+    "php82",                        # PHP 8.2 (stabil, kompatibel Laravel 13)
+    "php82Extensions.pdo",          # PDO — koneksi database abstrak
+    "php82Extensions.pdo_mysql",    # Driver MySQL spesifik
+    "php82Extensions.mbstring",     # String multibyte (wajib Laravel)
+    "php82Extensions.tokenizer",    # Tokenizer (wajib Laravel)
+    "php82Extensions.xml",          # XML parsing
+    "php82Extensions.ctype",        # Ctype functions
+    "php82Extensions.fileinfo",     # Deteksi tipe file (upload foto kandidat)
+    "php82Extensions.curl",         # HTTP requests
+    "php82Extensions.zip",          # ZIP untuk Composer
+    "php82Extensions.gd",           # Image processing (resize foto)
+    "php82Extensions.intl",         # Internasionalisasi (Carbon locale ID)
+    "php82Extensions.openssl",      # Enkripsi (wajib Laravel)
+    "composer"                      # Composer — package manager PHP
+]
+
+# =====================================================================
+# FASE 2: INSTALL — download semua dependency dari composer.json
+# --no-dev              : jangan install package development (hemat ukuran)
+# --optimize-autoloader : buat classmap untuk loading lebih cepat
+# =====================================================================
+[phases.install]
+cmds = [
+    "composer install --no-dev --optimize-autoloader --no-interaction"
+]
+
+# =====================================================================
+# FASE 3: BUILD — cache konfigurasi untuk performa production
+# Semua ini membuat Laravel lebih cepat karena tidak perlu baca file
+# .env dan routing setiap request.
+# =====================================================================
+[phases.build]
+cmds = [
+    "php artisan config:cache",   # Cache semua config + .env
+    "php artisan route:cache",    # Cache semua route
+    "php artisan view:cache",     # Pre-compile semua Blade template
+    "php artisan storage:link"    # Buat symlink storage/ → public/storage/
+                                  # (diperlukan untuk foto kandidat yang diupload)
+]
+
+# =====================================================================
+# START — perintah untuk menjalankan aplikasi
+#
+# $PORT diisi otomatis oleh Railway (biasanya 8080 atau 3000).
+# Kita HARUS pakai $PORT, bukan hardcode 8000.
+# --host=0.0.0.0 supaya bisa diakses dari luar container.
+# =====================================================================
+[start]
+cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"

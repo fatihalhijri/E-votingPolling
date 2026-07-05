@@ -32,16 +32,20 @@ class VoteController extends Controller
     {
         $user = auth()->user();
 
-        // Ambil semua polling berstatus 'aktif'
-        // with('candidates') → eager load untuk menampilkan jumlah kandidat
-        // withCount('votes') → untuk tampilkan total suara masuk
-        $polls = Poll::where('status', 'aktif')
+        // Ambil semua polling yang visible ke mahasiswa:
+        // - 'aktif'   → bisa divote sekarang
+        // - 'selesai' → bisa dilihat hasilnya
+        // TIDAK tampilkan 'draft' karena belum dibuka admin.
+        //
+        // Kenapa whereIn bukan where('status', 'aktif')? Agar mahasiswa tetap
+        // bisa melihat polling yang sudah selesai dan melihat hasil akhirnya.
+        $polls = Poll::whereIn('status', ['aktif', 'selesai'])
                      ->withCount(['votes', 'candidates'])
-                     ->orderBy('selesai_pada', 'asc') // yang hampir berakhir tampil duluan
+                     ->orderByRaw("FIELD(status, 'aktif', 'selesai')") // aktif duluan
+                     ->orderBy('selesai_pada', 'asc')
                      ->get();
 
-        // Untuk setiap polling, tandai apakah user ini sudah vote
-        // Ini efisien: 1 query untuk semua poll_id sekaligus
+        // Tandai polling mana yang sudah divote user ini
         $sudahVotePollIds = Vote::where('user_id', $user->id)
                                 ->pluck('poll_id')
                                 ->toArray();

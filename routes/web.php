@@ -24,15 +24,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+use App\Http\Controllers\HomeController;
+
 // =====================================================================
-// HALAMAN UTAMA — redirect ke dashboard jika sudah login, ke login jika belum
+// HALAMAN UTAMA PUBLIK — siapapun bisa akses TANPA login
+//
+// Kenapa tidak pakai middleware 'auth'?
+// Karena kita ingin pengunjung baru langsung melihat polling yang ada,
+// bukan diarahkan ke halaman login yang membingungkan.
+//
+// Alur yang diinginkan:
+// 1. User buka website → tampil halaman home dengan daftar polling
+// 2. User klik "Vote Sekarang" → jika belum login → redirect ke login
+// 3. Setelah login → Laravel otomatis kembali ke halaman poll tersebut
 // =====================================================================
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-    return redirect()->route('login');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // =====================================================================
 // DASHBOARD MAHASISWA

@@ -248,18 +248,54 @@
                     @endif
                 </ul>
 
-                {{-- Info user + tombol logout --}}
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-white-50 small d-none d-md-inline">
-                        <i class="bi bi-person-circle me-1"></i>
-                        {{ Auth::user()->name }}
-                    </span>
-                    <form method="POST" action="{{ route('logout') }}" class="m-0">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-light btn-logout">
-                            <i class="bi bi-box-arrow-right me-1"></i>Keluar
-                        </button>
-                    </form>
+                {{-- Dropdown user (nama + profil + logout) --}}
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-light btn-logout dropdown-toggle d-flex align-items-center gap-2"
+                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{-- Avatar inisial nama --}}
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold"
+                              style="width:26px;height:26px;background:var(--evote-gold);color:var(--evote-navy);font-size:0.72rem;flex-shrink:0;">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </span>
+                        <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" style="border-radius:12px;border:1px solid var(--evote-border);box-shadow:0 4px 20px rgba(0,0,0,0.12);min-width:200px;">
+                        {{-- Info user --}}
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-semibold" style="font-size:0.85rem;color:var(--evote-navy);">
+                                {{ Auth::user()->name }}
+                            </div>
+                            <div class="text-muted" style="font-size:0.75rem;">
+                                {{ Auth::user()->email }}
+                            </div>
+                            @if(Auth::user()->nim)
+                            <div style="font-size:0.72rem;color:var(--evote-text-muted);">
+                                NIM: {{ Auth::user()->nim }}
+                            </div>
+                            @endif
+                        </li>
+                        {{-- Link Profil --}}
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                               href="{{ route('profile.edit') }}"
+                               style="font-size:0.88rem;">
+                                <i class="bi bi-person-gear" style="color:var(--evote-navy);"></i>
+                                Pengaturan Akun
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        {{-- Logout --}}
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                @csrf
+                                <button type="submit"
+                                        class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                        style="font-size:0.88rem;color:var(--evote-red);">
+                                    <i class="bi bi-box-arrow-right"></i>Keluar
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

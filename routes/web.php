@@ -41,40 +41,6 @@ use App\Http\Controllers\HomeController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // =====================================================================
-// ⚠️  ROUTE SEMENTARA — HAPUS SETELAH ADMIN BERHASIL DIBUAT!
-// URL: /setup-admin-evote2026
-// Dibuat untuk: membuat akun admin pertama di Railway production
-// =====================================================================
-Route::get('/setup-admin-evote2026', function () {
-    // Cek apakah admin sudah ada — cegah duplikasi
-    if (\App\Models\User::where('email', 'admin@kampus.ac.id')->exists()) {
-        return response()->json([
-            'status'  => 'sudah_ada',
-            'message' => 'Admin sudah ada! Login dengan admin@kampus.ac.id / admin123',
-        ]);
-    }
-
-    // Buat akun admin baru
-    $admin = \App\Models\User::create([
-        'name'     => 'Administrator',
-        'email'    => 'admin@kampus.ac.id',
-        'password' => bcrypt('admin123'),
-        'nim'      => 'ADM001',
-        'is_admin' => true,
-    ]);
-
-    return response()->json([
-        'status'  => 'berhasil',
-        'message' => 'Admin berhasil dibuat!',
-        'email'   => $admin->email,
-        'login'   => 'Gunakan: admin@kampus.ac.id / admin123',
-    ]);
-});
-// =====================================================================
-// ⚠️  AKHIR ROUTE SEMENTARA — HAPUS SAMPAI SINI SETELAH DIGUNAKAN!
-// =====================================================================
-
-// =====================================================================
 // DASHBOARD MAHASISWA
 // =====================================================================// Dashboard mahasiswa: inject polling aktif langsung ke view
 Route::get('/dashboard', function () {

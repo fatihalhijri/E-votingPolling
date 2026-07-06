@@ -41,50 +41,6 @@ use App\Http\Controllers\HomeController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // =====================================================================
-// ⚠️  ROUTE SEMENTARA — HAPUS SETELAH ADMIN BERHASIL DIBUAT!
-// Field yang benar: 'role' => 'admin' (bukan is_admin!)
-// isAdmin() di User model mengecek: $this->role === 'admin'
-// =====================================================================
-Route::get('/setup-admin-evote2026', function () {
-
-    $email = 'admin@kampus.ac.id';
-
-    // Jika sudah ada → upgrade rolenya ke 'admin' dan kembalikan info
-    $existing = \App\Models\User::where('email', $email)->first();
-    if ($existing) {
-        // Pakai forceFill agar bypass $fillable jika perlu
-        $existing->role = 'admin';
-        $existing->save();
-        return response()->json([
-            'status'  => 'diupdate',
-            'message' => 'Role user diupdate ke admin!',
-            'email'   => $existing->email,
-            'role'    => $existing->role,
-            'login'   => 'Gunakan: ' . $email . ' / admin123',
-        ]);
-    }
-
-    // Buat admin baru — field 'role' ada di $fillable
-    $admin = \App\Models\User::create([
-        'name'     => 'Administrator',
-        'email'    => $email,
-        'password' => bcrypt('admin123'),
-        'nim'      => 'ADM001',
-        'role'     => 'admin',   // ← BENAR: bukan is_admin
-    ]);
-
-    return response()->json([
-        'status'  => 'berhasil',
-        'message' => 'Admin berhasil dibuat!',
-        'email'   => $admin->email,
-        'role'    => $admin->role,
-        'login'   => 'Gunakan: ' . $email . ' / admin123',
-    ]);
-});
-// ⚠️  HAPUS ROUTE DI ATAS SETELAH SELESAI!
-// =====================================================================
-
-// =====================================================================
 // DASHBOARD MAHASISWA
 // =====================================================================// Dashboard mahasiswa: inject polling aktif langsung ke view
 Route::get('/dashboard', function () {
